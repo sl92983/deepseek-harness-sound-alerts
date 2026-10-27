@@ -21,7 +21,6 @@
 
 *非官方社区项目，与 DeepSeek 无隶属关系，亦未获其背书。*
 
-![DeepSeek Harness 声音提醒——审批、提问与完成提示音](assets/social-preview.png)
 
 ## 它能解决什么问题
 

@@ -21,7 +21,6 @@ This is an unofficial, lightweight **Manifest V3 Chrome extension for DeepSeek H
 
 *Unofficial community project; not affiliated with or endorsed by DeepSeek.*
 
-![DeepSeek Harness Sound Alerts — approval, question, and completion audio cues](assets/social-preview.png)
 
 ## Why it helps
 

@@ -16,7 +16,6 @@ $files = @(
   "CONTRIBUTING.md",
   "CHANGELOG.md",
   "icons",
-  "assets",
   "docs"
 ) | ForEach-Object { Join-Path $root $_ }
 

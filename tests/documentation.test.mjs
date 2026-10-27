@@ -37,7 +37,7 @@ test("the ZIP allowlist includes every linked documentation and visual directory
   for (const entry of [
     "manifest.json", "content.js", "README.md", "README.zh-CN.md",
     "LICENSE", "SECURITY.md", "CONTRIBUTING.md", "CHANGELOG.md",
-    "icons", "assets", "docs"
+    "icons", "docs"
   ]) {
     assert.equal(script.includes(`  "${entry}"`), true, `${entry} must be packaged`);
   }
