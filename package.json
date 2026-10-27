@@ -1,0 +1,17 @@
+{
+  "name": "deepseek-harness-sound-alerts",
+  "version": "1.2.3",
+  "private": true,
+  "description": "Local sound alerts for DeepSeek Harness Web GUI.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "check": "node --check content.js",
+    "test": "node tests/run.mjs",
+    "check:secrets": "node scripts/check-secrets.mjs",
+    "validate": "npm run check && npm test && npm run check:secrets",
+    "package": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/package-extension.ps1"
+  }
+}

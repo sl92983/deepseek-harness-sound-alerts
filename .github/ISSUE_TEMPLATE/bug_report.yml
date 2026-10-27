@@ -1,0 +1,53 @@
+name: Bug report / Bug 报告
+description: Report a reproducible alert or compatibility problem / 报告可复现的提醒或兼容性问题
+title: "[Bug] "
+labels: [bug]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened? / 发生了什么？
+      description: Describe expected and actual behavior. / 请说明预期行为与实际行为。
+      placeholder: Approval beeps work, but the completion chime does not after...
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction steps / 复现步骤
+      placeholder: "1. Open...\n2. Run...\n3. Observe..."
+    validations:
+      required: true
+  - type: input
+    id: harness-version
+    attributes:
+      label: DeepSeek Harness version / 版本
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and version / 浏览器及版本
+      placeholder: Chrome 142
+    validations:
+      required: true
+  - type: input
+    id: os
+    attributes:
+      label: Operating system / 操作系统
+      placeholder: Windows 11
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant console messages / 相关 Console 日志
+      description: Remove all private information first. / 请先删除所有私人信息。
+      render: text
+  - type: checkboxes
+    id: privacy-check
+    attributes:
+      label: Privacy check / 隐私确认
+      options:
+        - label: This report contains no credentials, tokens, private conversation content, or personal files. / 本报告不含凭据、令牌、私人会话内容或个人文件。
+          required: true

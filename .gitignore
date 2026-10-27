@@ -1,0 +1,27 @@
+# Local credentials and private configuration.
+.env
+.env.*
+!.env.example
+github.txt
+credentials.json
+credentials-*.json
+*.pem
+*.key
+
+# Package and test output.
+build/
+dist/
+*.zip
+
+# Dependencies if contributors add local tooling.
+node_modules/
+
+# OS, editor, and log files.
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.log
+*.swp
+*.swo
+.vscode/
+.idea/

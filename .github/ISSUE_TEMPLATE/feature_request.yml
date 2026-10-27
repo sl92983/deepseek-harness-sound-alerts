@@ -1,0 +1,25 @@
+name: Feature request / 功能建议
+description: Suggest a focused improvement / 提出聚焦的改进建议
+title: "[Feature] "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would this solve? / 要解决什么问题？
+      description: Start with the user problem rather than only a technical solution. / 请先描述用户痛点，而不只是技术方案。
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed improvement / 建议方案
+    validations:
+      required: true
+  - type: checkboxes
+    id: principles
+    attributes:
+      label: Project principles / 项目原则
+      options:
+        - label: This suggestion preserves local-only audio, minimal permissions, and no tracking. / 本建议保持本地音频、最小权限与无跟踪。
+          required: true
