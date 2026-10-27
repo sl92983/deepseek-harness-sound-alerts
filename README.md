@@ -40,7 +40,7 @@ This is an unofficial, lightweight **Manifest V3 Chrome extension for DeepSeek H
 | Turn completed | Ascending five-note chime | The current run has finished |
 | History loaded without an active run | No completion chime | Prevents old turns from triggering false alerts |
 
-## Quick start — install from the release ZIP
+## Quick start — ready in 4 steps
 
 ### 1. Check the requirements
 
@@ -68,16 +68,7 @@ This is an unofficial, lightweight **Manifest V3 Chrome extension for DeepSeek H
 
 Repeat the click/key gesture after a full page reload because each loaded page has its own audio context.
 
-### 5. Test the two cues
-
-After the page has been unlocked, open DevTools Console in the Harness tab and run:
-
-```js
-document.dispatchEvent(new Event("dsh-approval-alert-test"));
-document.dispatchEvent(new Event("dsh-completion-alert-test"));
-```
-
-The first command plays the approval/question beeps; the second plays the completion chime.
+**That's it—use Harness normally.** No Console, test command, account, or additional configuration is needed. Approval/question alerts and the completion chime play automatically.
 
 <details>
 <summary><strong>Alternative: install from source</strong></summary>
@@ -164,6 +155,19 @@ The archive is written to `dist/` and includes only the extension runtime, icons
 Bug reports, compatibility fixes, translations, and documentation improvements are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md), keep the extension lightweight, and never include credentials or private conversation content in an issue or commit.
 
 If this project saves you time, a GitHub star or a share with another DeepSeek Harness user helps others discover it.
+
+## FAQ
+
+### Can I test the sounds manually?
+
+**Only if you are diagnosing an audio problem—this is not part of installation or normal use.** After completing step 4, open DevTools Console in the Harness tab and optionally run:
+
+```js
+document.dispatchEvent(new Event("dsh-approval-alert-test"));
+document.dispatchEvent(new Event("dsh-completion-alert-test"));
+```
+
+The first command plays the approval/question beeps; the second plays the completion chime.
 
 ## License
 

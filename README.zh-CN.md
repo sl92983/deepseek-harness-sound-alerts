@@ -40,7 +40,7 @@
 | 本轮执行完成 | 上行五音铃声 | 当前运行已经结束 |
 | 在没有活动运行时加载历史记录 | 不播放完成铃声 | 避免旧轮次造成误报 |
 
-## 快速安装——下载 Release ZIP
+## 快速安装——4 步即可使用
 
 ### 1. 确认使用条件
 
@@ -68,16 +68,7 @@
 
 每次完整刷新页面后都需要重新点击或按键，因为新页面会创建新的音频上下文。
 
-### 5. 测试两种提示音
-
-完成上述用户操作后，在 Harness 页面打开开发者工具 Console，分别运行：
-
-```js
-document.dispatchEvent(new Event("dsh-approval-alert-test"));
-document.dispatchEvent(new Event("dsh-completion-alert-test"));
-```
-
-第一条播放审批/提问提示音，第二条播放本轮完成铃声。
+**到这里即可直接使用。** 无需打开 Console、运行测试命令、登录账号或进行其他配置；之后出现审批、提问、方案选择或本轮完成时，插件会自动播放相应提示音。
 
 <details>
 <summary><strong>另一种方式：从源码安装</strong></summary>
@@ -164,6 +155,19 @@ npm run package
 欢迎提交兼容性修复、Bug 报告、翻译与文档改进。请先阅读 [CONTRIBUTING.md](CONTRIBUTING.md)，保持插件轻量，并确保 Issue 和提交中不包含凭据或私人会话内容。
 
 如果这个项目帮你节省了时间，欢迎点一个 Star 或分享给其他 DeepSeek Harness 用户，让有需要的人更容易找到它。
+
+## 常见问题
+
+### 如何手动测试提示音？
+
+**仅在排查声音问题时使用，不属于安装步骤，正常使用也不需要执行。** 完成第 4 步后，如果希望绕过 Harness 页面事件单独检查声音，可以在 Harness 页面打开开发者工具 Console，选择运行：
+
+```js
+document.dispatchEvent(new Event("dsh-approval-alert-test"));
+document.dispatchEvent(new Event("dsh-completion-alert-test"));
+```
+
+第一条播放审批/提问提示音，第二条播放本轮完成铃声。
 
 ## 许可证
 
