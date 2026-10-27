@@ -15,7 +15,7 @@ AI coding agents often **pause silently for an approval, an answer, or a plan ch
 
 **DeepSeek Harness Sound Alerts** turns those silent states into clear, distinct audio cues: **five beeps when your input is needed, and an ascending chime when the turn is done**. Step away from the page without repeatedly coming back just to check its status.
 
-> **中文简介：** 当 DeepSeek Harness 等待审批、回答问题或选择方案时，插件会播放五声提示音；本轮完成时播放不同的上行五音铃声。无需一直盯着页面，也能及时知道“需要你处理”或“已经执行完成”。[查看完整中文文档](README.zh-CN.md)。
+> **中文简介：** DeepSeek Harness 需要审批、回答提问或选择方案时，插件会响五声提示音；本轮完成时响一段不同的上行铃声。声音都在本地生成，不用一直盯着页面也能及时知道「该你处理了」或「已经跑完了」。[查看完整中文文档](README.zh-CN.md)。
 
 This is an unofficial, lightweight **Manifest V3 Chrome extension for DeepSeek Harness Web GUI**. All sounds are synthesized locally with Web Audio—no audio files, cloud service, analytics, or remote network calls.
 
