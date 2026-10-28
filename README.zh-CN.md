@@ -17,9 +17,7 @@
 
 > **English summary:** Clear local sound cues when DeepSeek Harness needs an approval, answer, or plan choice—and a different chime when the turn completes. [Read the full English documentation](README.md).
 
-这是一款面向 **DeepSeek Harness Web GUI** 的非官方、轻量级 **Manifest V3 Chrome 扩展**。所有声音都用 Web Audio 在浏览器本地合成，不需要音频文件，也没有云服务、统计埋点或任何远程请求。
-
-*非官方社区项目，与 DeepSeek 无隶属关系，也未获得其背书。*
+这是一款面向 **DeepSeek Harness Web GUI** 的轻量级 **Manifest V3 Chrome 扩展**。所有声音都用 Web Audio 在浏览器本地合成，不需要音频文件，也没有云服务、统计埋点或任何远程请求。
 
 
 ## 能帮你什么
@@ -173,4 +171,4 @@ document.dispatchEvent(new Event("dsh-completion-alert-test"));
 
 [MIT](LICENSE) © 2026 sl92983
 
-DeepSeek 与 DeepSeek Harness 的名称归其相应项目所有。本社区扩展与 DeepSeek 无隶属关系，也未获得其背书。
+DeepSeek 与 DeepSeek Harness 的名称归其相应项目所有。
