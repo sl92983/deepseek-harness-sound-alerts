@@ -7,6 +7,7 @@ credentials.json
 credentials-*.json
 *.pem
 *.key
+firmware/**/wifi_config.h
 
 # Package and test output.
 build/

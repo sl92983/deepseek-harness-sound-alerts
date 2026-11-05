@@ -23,11 +23,18 @@ test("manifest is MV3 and every referenced local file exists", () => {
   }
 });
 
-test("the extension stays limited to the two local Harness origins", () => {
+test("the content script stays limited to the two local Harness origins", () => {
   const expectedOrigins = ["http://127.0.0.1:3080/*", "http://localhost:3080/*"];
-  assert.deepEqual(manifest.host_permissions, expectedOrigins);
   assert.deepEqual(manifest.content_scripts[0].matches, expectedOrigins);
   assert.deepEqual(manifest.content_scripts[0].js, ["content.js"]);
+});
+
+test("host access permits LAN light discovery without enabling HTTPS or remote scripts", () => {
+  assert.ok(manifest.host_permissions.includes("http://*/*"));
+  assert.ok(manifest.host_permissions.includes("http://127.0.0.1:3080/*"));
+  assert.ok(manifest.host_permissions.includes("http://localhost:3080/*"));
+  assert.equal(manifest.host_permissions.some((origin) => origin.startsWith("https://")), false);
+  assert.doesNotMatch(JSON.stringify(manifest), /https:\/\/.*\.js/);
 });
 
 test("there are no permissions, background workers, remote code, or externally connectable APIs", () => {

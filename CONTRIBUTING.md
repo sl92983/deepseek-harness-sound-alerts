@@ -7,13 +7,13 @@ Thank you for helping more DeepSeek Harness users notice approvals, questions, p
 
 - Report reproducible bugs or DOM compatibility changes. / 报告可复现的 Bug 或 DOM 兼容性变化。
 - Improve bilingual documentation and translations. / 改进双语文档与翻译。
-- Fix compatibility issues while keeping the extension small and local-only. / 在保持轻量、纯本地的前提下修复兼容性问题。
-- Add focused tests for alert, deduplication, and completion behavior. / 为提醒、去重与完成检测添加针对性测试。
+- Fix compatibility issues while keeping the project lightweight and free of cloud dependencies. / 在保持轻量、无云依赖的前提下修复兼容性问题。
+- Add focused tests for audio, light commands, deduplication, and completion behavior. / 为声音、灯光命令、去重与完成检测添加针对性测试。
 
 ## Before submitting / 提交前
 
 1. Keep changes scoped; discuss large feature ideas in an issue first. / 保持变更聚焦，大型功能请先通过 Issue 讨论。
-2. Preserve the empty `permissions` array and local-only host access unless a proposal explicitly explains why a change is necessary. / 除非提案明确说明必要性，否则保持空 `permissions` 与仅本地主机访问。
+2. Preserve the empty `permissions` array and the two local content-script origins. Any host-access change must explain why it is necessary. / 保持空 `permissions` 与两个本地内容脚本源；任何主机访问变更都必须说明必要性。
 3. Do not add analytics, remote code, tracking, or remote audio dependencies. / 不添加分析统计、远程代码、跟踪或远程音频依赖。
 4. Update both English and Chinese documentation when user-facing behavior changes. / 用户可见行为变化时，同步更新中英文文档。
 5. Run the checks without installing dependencies: / 无需安装依赖，运行：

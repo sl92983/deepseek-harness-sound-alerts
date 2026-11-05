@@ -42,8 +42,9 @@ class FakeAudioParam {
   exponentialRampToValueAtTime(value) { this.value = value; }
 }
 
-function createContent() {
+function createContent(options = {}) {
   const oscillators = [];
+  const networkRequests = [];
   const windowListeners = new Map();
   const documentListeners = new Map();
   const observers = [];
@@ -118,16 +119,43 @@ function createContent() {
     observe(_target, options) { this.options = options; }
   }
 
+  async function fakeFetch(url) {
+    const request = String(url);
+    networkRequests.push(request);
+    if (options.lightIp && request === `http://${options.lightIp}/`) {
+      return { ok: true, status: 200, async text() { return "dsh-light\nmode: idle"; } };
+    }
+    if (options.lightIp && request.startsWith(`http://${options.lightIp}/`)) {
+      return { ok: true, status: 200, async text() { return "ok"; } };
+    }
+    throw new Error("No test light at this address");
+  }
+
+  function fakeSetTimeout(callback, delay = 0, ...args) {
+    if (delay === 800) {
+      // Run startup discovery immediately only in light-integration tests.
+      if (options.lightIp) queueMicrotask(() => callback(...args));
+      return 800;
+    }
+    return setTimeout(callback, delay, ...args);
+  }
+
   const context = vm.createContext({
     document,
     window,
     MutationObserver: FakeMutationObserver,
+    AbortController,
+    fetch: fakeFetch,
+    performance,
+    setTimeout: fakeSetTimeout,
+    clearTimeout,
     console: { info() {}, warn() {} }
   });
   vm.runInContext(contentSource, context, { filename: "content.js" });
 
   return {
     oscillators,
+    networkRequests,
     body,
     document,
     get observerOptions() { return observers[0].options; },
@@ -150,6 +178,20 @@ function createContent() {
 
 function flushAsyncAudio() {
   return new Promise((resolve) => setImmediate(resolve));
+}
+
+async function waitFor(predicate, attempts = 80) {
+  for (let attempt = 0; attempt < attempts; attempt++) {
+    if (predicate()) return;
+    await flushAsyncAudio();
+  }
+  throw new Error("Timed out waiting for asynchronous light command");
+}
+
+function lightCommands(env) {
+  return env.networkRequests
+    .map((url) => url.match(/\/(alert|complete|clear)$/)?.[1])
+    .filter(Boolean);
 }
 
 async function unlock(env) {
@@ -286,9 +328,56 @@ test("a tail for an unrelated historical turn cannot use the current live turn",
   assert.equal(env.oscillators.length, 0);
 });
 
-test("content script contains no network, storage, cookie, or remote-code APIs", () => {
+test("network code is limited to plain-HTTP light discovery and commands", () => {
+  assert.match(contentSource, /fetch\(`http:\/\/\$\{ip\}\//);
+  assert.match(contentSource, /fetch\(`\$\{base\}\$\{path\}/);
+  assert.doesNotMatch(contentSource, /fetch\s*\(\s*["']https:\/\//i);
   assert.doesNotMatch(
     contentSource,
-    /\bfetch\s*\(|XMLHttpRequest|WebSocket|EventSource|sendBeacon|WebTransport|chrome\.storage|localStorage|sessionStorage|indexedDB|document\.cookie|\beval\s*\(|new\s+Function\b/
+    /XMLHttpRequest|WebSocket|EventSource|sendBeacon|WebTransport|chrome\.storage|localStorage|sessionStorage|indexedDB|document\.cookie|\beval\s*\(|new\s+Function\b/
   );
+});
+
+test("clear is deduplicated and waits for the last pending interaction", async () => {
+  const env = createContent({ lightIp: "192.168.1.250" });
+  await unlock(env);
+  const first = new FakeElement({ "data-approval-key": "approval:first" });
+  const second = new FakeElement({ "data-question-key": "question:second" });
+  env.added(first, second);
+  await waitFor(() => lightCommands(env).length === 2);
+
+  first.isConnected = false;
+  env.added(new FakeElement());
+  await flushAsyncAudio();
+  assert.deepEqual(lightCommands(env), ["alert", "alert"]);
+
+  second.isConnected = false;
+  env.added(new FakeElement());
+  await waitFor(() => lightCommands(env).includes("clear"));
+  assert.deepEqual(lightCommands(env), ["alert", "alert", "clear"]);
+
+  await env.triggerWindow("keydown");
+  await env.triggerWindow("pointerdown");
+  await env.triggerWindow("focus");
+  await flushAsyncAudio();
+  assert.deepEqual(lightCommands(env), ["alert", "alert", "clear"]);
+});
+
+test("alert, completion, and clear light commands preserve event order", async () => {
+  const env = createContent({ lightIp: "192.168.1.250" });
+  await unlock(env);
+  const approval = new FakeElement({ "data-approval-key": "approval:ordered" });
+  env.added(approval);
+
+  const current = new FakeElement({ "data-chat-turn": "turn:ordered" });
+  env.setActivities([current]);
+  env.setRunningControl(true);
+  env.added(current);
+  env.setRunningControl(false);
+  env.added(new FakeElement({ "data-turn-tail": "turn:ordered" }));
+
+  approval.isConnected = false;
+  env.added(new FakeElement());
+  await waitFor(() => lightCommands(env).length === 3);
+  assert.deepEqual(lightCommands(env), ["alert", "complete", "clear"]);
 });

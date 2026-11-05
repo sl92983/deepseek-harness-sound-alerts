@@ -1,6 +1,6 @@
-# DeepSeek Harness 声音提醒
+# DeepSeek Harness 声音与灯光提醒
 
-### DeepSeek Harness Sound Alerts · 审批 / 提问 / 方案选择 / 完成提示音
+### 审批 / 提问 / 方案选择 / 完成提醒 · Chrome 扩展 + ESP32 RGB 灯
 
 **[English](README.md)** · **简体中文**
 
@@ -9,166 +9,125 @@
 [![Manifest V3](https://img.shields.io/badge/Manifest-V3-5b67d8)](manifest.json)
 [![MIT 许可证](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-## 别再反复切回来看进度，需要你的时候会响，跑完了也会响
+## 需要你时，有声音，也有灯光
 
-用 DeepSeek Harness 时，它经常会在**等你审批、回答提问、或者选一个方案**的地方停下来。这时候你要是正切在别的窗口，或者人已经离开电脑，很容易就错过——代理也就一直卡在那儿干等。就算这一轮已经跑完了，往往也要等你再切回页面才知道。
+DeepSeek Harness 等待审批、回答问题或选择方案时，代理会停在原地；切换到其他窗口后，很容易错过。任务已经完成，也常常要切回页面才知道。
 
-**DeepSeek Harness Sound Alerts（DeepSeek Harness 声音提醒）**就是把这些容易被错过的时刻，变成清晰、好分辨的声音：**该你处理了响五声提示音，跑完了响一段上行铃声**。你可以放心去忙别的，不用每隔一会儿就切回来瞄一眼。
+**DeepSeek Harness Sound Alerts v1.3.3** 将这些状态变成两种直观提醒：浏览器播放提示音，ESP32 同步驱动 RGB 灯。把灯放到蛋仔派对人偶上，就是一个会发光的桌面彩蛋。
 
-> **English summary:** Clear local sound cues when DeepSeek Harness needs an approval, answer, or plan choice—and a different chime when the turn completes. [Read the full English documentation](README.md).
+![实物与灯光效果](https://raw.githubusercontent.com/sl92983/deepseek-harness-sound-alerts/main/media/eggy-1.jpg)
 
-这是一款面向 **DeepSeek Harness Web GUI** 的轻量级 **Manifest V3 Chrome 扩展**。所有声音都用 Web Audio 在浏览器本地合成，不需要音频文件，也没有云服务、统计埋点或任何远程请求。
+**[观看演示视频](https://github.com/sl92983/deepseek-harness-sound-alerts/blob/main/media/eggy-demo.mp4)**
 
+## 核心功能
 
-## 能帮你什么
-
-- **该你处理了，及时提醒** — 出现审批请求、用户提问或方案选择面板时，响五声短促的 **880 Hz** 提示音。
-- **跑完有专门的声音** — 本轮执行完成后，响一段截然不同的**上行五音铃声**（C5–E5–G5–B5–C6），不会和审批提示音搞混。
-- **同一件事不会反复响** — 按交互 key 去重，React 重新渲染也不会重复播放同一次提醒。
-- **历史记录不误报** — 只认真实运行，加载旧会话时不会误触发完成铃声。
-- **轻得几乎没有存在感** — 没有后台 Worker、不占存储、无需构建，`permissions` 数组里一个权限项都没有。
-- **数据全留在本地** — 只访问 `127.0.0.1:3080` 和 `localhost:3080`，声音完全在你的浏览器里生成。
-
-## 什么时候会响什么
-
-| DeepSeek Harness 状态 | 声音 | 含义 |
+| DeepSeek Harness 状态 | 声音提醒 | ESP32 灯光 |
 |---|---|---|
-| 等待审批 | 五声 880 Hz 提示音 | 代理在等你允许或拒绝 |
-| 用户提问 / 方案选择 / 计划评审 | 五声 880 Hz 提示音 | 代理在等你回答或选择 |
-| 本轮执行完成 | 上行五音铃声 | 这次运行已经结束 |
-| 没有活动运行、只是加载历史 | 不响完成铃声 | 避免旧记录造成误报 |
+| 等待审批 | 五声 880 Hz 提示音 | 橙色 / 青色交替脉冲，持续提醒 |
+| 用户提问 / 方案选择 / 计划评审 | 五声 880 Hz 提示音 | 橙色 / 青色交替脉冲，持续提醒 |
+| 本轮执行完成 | 上行五音铃声 | 绿色呼吸灯，亮度 5%–25% |
+| 待处理项已解决，或切回页面且无待处理项 | 无 | 自动关灯 |
+| 仅加载历史记录，没有活动运行 | 不误报完成铃声 | 不误触发完成灯效 |
 
-## 快速安装（4 步搞定）
+- **声音可独立使用**：没有 ESP32 也能使用全部声音提醒。
+- **灯光持续可见**：需要处理的灯效会保持，不只是一闪而过。
+- **避免重复提醒**：按交互 key 去重，处理 React 重渲染、原地换 key 和同 key 节点替换。
+- **避免历史误报**：只有确认真实运行的轮次才触发完成提醒。
+- **局域网联动**：扩展发现灯后串行发送状态命令，避免请求乱序和重复关灯。
 
-### 1. 确认环境
+## 图片与视频
 
-- DeepSeek Harness Web GUI 运行在 `http://127.0.0.1:3080` 或 `http://localhost:3080`。
-- 使用 Chrome，或其他支持 Manifest V3 的 Chromium 浏览器。
+| 实物展示 | 灯光效果 |
+|---|---|
+| ![展示图 1](https://raw.githubusercontent.com/sl92983/deepseek-harness-sound-alerts/main/media/eggy-1.jpg) | ![展示图 2](https://raw.githubusercontent.com/sl92983/deepseek-harness-sound-alerts/main/media/eggy-2.jpg) |
+| ![展示图 3](https://raw.githubusercontent.com/sl92983/deepseek-harness-sound-alerts/main/media/eggy-3.jpg) | ![展示图 4](https://raw.githubusercontent.com/sl92983/deepseek-harness-sound-alerts/main/media/eggy-4.jpg) |
 
-### 2. 下载并解压
+视频为 MP4 格式，可在 GitHub 文件页观看：**[打开演示视频](https://github.com/sl92983/deepseek-harness-sound-alerts/blob/main/media/eggy-demo.mp4)**。
 
-1. 打开 **[最新 Release](https://github.com/sl92983/deepseek-harness-sound-alerts/releases/latest)**。
-2. 下载 `deepseek-harness-sound-alerts-v1.2.3.zip`。
-3. **先解压**，Chrome 没法直接加载 ZIP 文件。
+## 安装一：只使用声音提醒
 
-### 3. 加载扩展
+1. 从 **[最新 Release](https://github.com/sl92983/deepseek-harness-sound-alerts/releases/latest)** 下载 `deepseek-harness-sound-alerts-v1.3.3.zip` 并解压。
+2. 打开 `chrome://extensions/`，开启**开发者模式**，点击**加载已解压的扩展程序**。
+3. 选择解压后包含 `manifest.json` 的文件夹。
+4. 打开或刷新 `http://127.0.0.1:3080` 的 Harness 页面，**点击一次或按一次键盘**，允许浏览器播放声音。
 
-1. 在 Chrome 地址栏打开 `chrome://extensions/`（Edge 用 `edge://extensions/`）。
-2. 打开右上角的**开发者模式**。
-3. 点**加载已解压的扩展程序**。
-4. 选中解压后那个包含 `manifest.json` 的文件夹。
+如果实际地址使用 `localhost:3080`，扩展同样支持。每次整页刷新后都需要一次真实用户操作来解锁音频。
 
-### 4. 在 Harness 页面放行声音
+## 安装二：增加 ESP32 灯光联动
 
-1. 打开或刷新 DeepSeek Harness 页面。
-2. **在页面里点一下鼠标，或按一次键盘。** 浏览器要求先有一次真实的用户操作，才允许 Web Audio 出声。
-3. 确认这个标签页没被静音，系统音量也正常。
+### 硬件
 
-每次整页刷新后都要重新点一下或按一下，因为新页面会重新创建音频上下文。
+- ESP32-C3 SuperMini 开发板；
+- 单颗 WS2812B RGB 灯珠；
+- 与灯珠规格匹配的 3.3 V 供电和连接线。
 
-**装完就能直接用了。** 不用开 Console、不用跑测试命令、不用登录、也不用再做任何配置；以后出现审批、提问、方案选择或本轮完成时，插件会自动响对应的提示音。
+本项目的实物线色与常规颜色不同，**接线前必须以线序和灯珠标识为准**：
 
-<details>
-<summary><strong>另一种装法：从源码加载</strong></summary>
+| 实物线色 | 连接位置 | 用途 |
+|---|---|---|
+| 黑线 | `3V3` | VCC |
+| 红线 | `GND` | 地线 |
+| 蓝线 | `GPIO4` | DIN |
+| 绿线 | 不接 | DOUT |
 
-```bash
-git clone https://github.com/sl92983/deepseek-harness-sound-alerts.git
-```
+### 配网与烧录
 
-然后在**加载已解压的扩展程序**里直接选克隆下来的仓库根目录。根目录里已经有 `manifest.json`，不用装依赖，也不用构建。
+1. 安装 Arduino IDE、ESP32 开发板支持和 **FastLED** 库。
+2. 打开 [`firmware/esp32-dsh-light/esp32-dsh-light.ino`](firmware/esp32-dsh-light/esp32-dsh-light.ino)。
+3. 将同目录的 `wifi_config.example.h` 复制为 `wifi_config.h`，填入你自己的 Wi-Fi 名称和密码。
+4. 选择 ESP32-C3 开发板并烧录。详细配置见[固件说明](firmware/esp32-dsh-light/README.md)。
 
-</details>
+`wifi_config.h` 已加入 `.gitignore`，不会进入提交或发布包。**不要把真实 Wi-Fi 名称、密码写入其他公开文件。**
+
+### 自动发现
+
+扩展按以下顺序查找设备：
+
+1. `dsh-light.local`；
+2. `content.js` 中 `FIXED_PREFIXES` 配置的常见网段；
+3. WebRTC 可获取本机内网地址时，追加本机网段。
+
+如果 ESP32 位于独立网段，把它的 IPv4 前三段加入 `FIXED_PREFIXES`，然后重新加载扩展。设备根路径必须返回 `dsh-light`，扩展才会识别。
+
+固件提供 `GET /alert`、`GET /complete`、`GET /clear` 和状态根路径 `/`。这些接口没有身份认证，**只应在可信局域网中使用**。
 
 ## 工作原理
 
-扩展用 `MutationObserver` 只盯着本地的 DeepSeek Harness 页面：
+扩展通过 `MutationObserver` 监听本地 Harness 页面的状态属性。审批、提问和方案选择触发五声提示音与 `/alert`；确认当前轮次真实运行并结束后，触发上行铃声与 `/complete`；所有待处理项消失，或用户回到页面且没有待处理项时，发送 `/clear`。
 
-- `[data-approval-key]` 对应审批请求。
-- `[data-question-key]` 和 `[data-plan-review-key]` 对应用户提问和方案选择。
-- 同一轮里，先出现非尾部的 `[data-chat-turn]` 活动、再出现该轮的 `[data-turn-tail]`，就判为完成；`[data-turn-process]` 是额外的兼容信号。
-
-交互 key 只记在页面内存里，对应元素消失后就会清掉。完成铃声只认「确实观察到活动运行控件」的轮次，所以历史节点即使延迟加载，也不会光凭时间间隔就被误判成完成。所有声音都由 Web Audio API 即时合成，不需要下载任何音频文件。
-
-## 自定义
-
-改 `content.js` 后，到 `chrome://extensions/` 重新加载扩展，再刷新 Harness 页面：
-
-| 想改什么 | 位置 |
-|---|---|
-| 审批/提问提示音的次数 | `BEEP_COUNT`（默认 `5`） |
-| 审批/提问提示音的音高 | `playBeeps()` 里的 `freq`（默认 `880` Hz） |
-| 完成铃声的旋律 | `playCompletionSound()` 里的 `completionNote(...)` |
-
-如果你的 Harness 换了端口，请同时改 `manifest.json` 里的 `matches` 和 `host_permissions`。插件不会主动索取远程网站或任意站点的访问权限。
-
-## 故障排查
-
-### 完全没声音
-
-- 每次整页刷新后，先在 Harness 页面里点一下或按一下键盘。
-- 看看标签页是不是静音了、系统音量是不是正常。
-- 确认地址是允许的本地地址，而且带 `3080` 端口。
-- 重新加载扩展，再刷新 Harness 页面。
-- 打开开发者工具 Console，看看有没有 `[DeepSeek Harness Sound Alerts]` 的日志。
-
-### 审批会响，完成不响
-
-- 先确认这是本次真实运行，而不是之前保存的历史会话。
-- DeepSeek Harness 更新可能会改动 DOM 属性。对照 `content.js` 里的选择器检查当前页面，并在 Issue 里提供能复现的变化。
-
-### 同一提醒意外重复响
-
-同一个交互 key 只要元素还在，就只会响一次。如果 Harness 更新导致元素反复重挂载或不断生成新 key，请在 Issue 里说明 Harness 版本和复现步骤，别附带私人会话内容。
+ESP32 使用 FastLED 驱动 WS2812B，并通过局域网 HTTP 接收三种状态命令。声音在浏览器本地合成，灯效在 ESP32 本地运行，不依赖云端服务。
 
 ## 隐私与权限
 
-- `permissions` 是空数组。
-- 只访问 `http://127.0.0.1:3080/*` 和 `http://localhost:3080/*`。
-- 没有后台 Service Worker，不存储数据，不读 Cookie，不埋点、不追踪、不加载远程代码。
-- 不发任何远程网络请求，声音在本地合成。
-- 不上传任何会话内容；交互 key 只用于内存去重。
+- 内容脚本只注入 `127.0.0.1:3080` 和 `localhost:3080`。
+- `permissions` 为空；没有后台 Service Worker、存储、账号、分析统计或远程代码。
+- 为发现和驱动可选的 ESP32，清单包含 `http://*/*` 主机访问；扩展会尝试 mDNS、网段探测，并向识别为 `dsh-light` 的设备发送 HTTP 命令。
+- 不读取或上传会话正文、文件、命令或 Cookie；交互 key 仅保存在页面内存中用于去重。
+- Wi-Fi 名称和密码只应存在于本地被忽略的 `wifi_config.h`，扩展不会读取该文件。
 
-安全问题请见 [SECURITY.md](SECURITY.md)，数据流向的简明说明见 [docs/PRIVACY.md](docs/PRIVACY.md)。
+详见[隐私与数据流](docs/PRIVACY.md)和[安全政策](SECURITY.md)。
 
 ## 开发与验证
 
-日常使用不需要 Node.js，也不用装任何依赖。想跑贡献者检查的话，准备 Node.js 18 或更高版本：
+日常安装不需要 Node.js。贡献者使用 Node.js 18 或更高版本运行：
 
 ```bash
 npm run validate
-```
-
-它会做 JavaScript 语法检查、两种提示音与去重/历史过滤的行为测试、清单权限限制检查，以及敏感信息扫描。不用先 `npm install`。
-
-在 Windows 上生成发布 ZIP：
-
-```powershell
 npm run package
 ```
 
-压缩包会输出到 `dist/`，只含扩展运行文件、图标、文档和许可证。
+检查包括 JavaScript 语法、声音与灯光行为、历史防误报、清单限制、文档链接和敏感信息扫描。ZIP 输出到 `dist/`，包含 Chrome 扩展、ESP32 固件源码及文档，不包含私有 Wi-Fi 配置或演示媒体。
 
-## 参与贡献
+## 故障排查
 
-欢迎提交兼容性修复、Bug 报告、翻译和文档改进。请先读 [CONTRIBUTING.md](CONTRIBUTING.md)，保持插件轻量，并确保 Issue 和提交里不含凭据或私人会话内容。
-
-如果这个项目帮你省了时间，欢迎点个 Star，或者分享给其他 DeepSeek Harness 用户，让有需要的人更容易找到它。
-
-## 常见问题
-
-### 怎么手动测试提示音？
-
-**只在排查声音问题时才需要，不属于安装步骤，正常使用也不用做。** 完成第 4 步后，如果想绕过 Harness 页面事件单独听一下声音，可以在 Harness 页面打开开发者工具 Console，运行：
-
-```js
-document.dispatchEvent(new Event("dsh-approval-alert-test"));
-document.dispatchEvent(new Event("dsh-completion-alert-test"));
-```
-
-第一条响审批/提问提示音，第二条响完成铃声。
+- **没有声音**：刷新页面后先点击一次或按一次键盘，并检查标签页和系统音量。
+- **找不到灯**：确认电脑与 ESP32 位于可互通的局域网；检查固件是否连网、根路径是否返回 `dsh-light`，必要时配置 `FIXED_PREFIXES`。
+- **灯一直亮**：处理完所有审批 / 提问，或切回 Harness 页面；仍无响应时检查设备网络。
+- **完成提醒没有出现**：确认这是当前真实运行，而不是加载的历史会话。
+- **需要单独测试声音**：可在开发者工具 Console 分派 `dsh-approval-alert-test` 或 `dsh-completion-alert-test` 事件；这只是排障手段，不是安装步骤。
 
 ## 许可证
 
 [MIT](LICENSE) © 2026 sl92983
 
-DeepSeek 与 DeepSeek Harness 的名称归其相应项目所有。
+DeepSeek 与 DeepSeek Harness 的名称归其相应项目所有。蛋仔派对相关形象归其权利人所有，本项目仅展示个人桌面硬件改造效果。

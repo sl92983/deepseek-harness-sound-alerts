@@ -16,7 +16,8 @@ $files = @(
   "CONTRIBUTING.md",
   "CHANGELOG.md",
   "icons",
-  "docs"
+  "docs",
+  "firmware"
 ) | ForEach-Object { Join-Path $root $_ }
 
 Compress-Archive -Path $files -DestinationPath $archive -Force

@@ -1,8 +1,8 @@
 {
   "name": "deepseek-harness-sound-alerts",
-  "version": "1.2.3",
+  "version": "1.3.3",
   "private": true,
-  "description": "Local sound alerts for DeepSeek Harness Web GUI.",
+  "description": "Sound and ESP32 RGB light alerts for DeepSeek Harness Web GUI.",
   "license": "MIT",
   "engines": {
     "node": ">=18"

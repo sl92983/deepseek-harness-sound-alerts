@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { dirname, extname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -37,18 +37,28 @@ test("the ZIP allowlist includes every linked documentation and visual directory
   for (const entry of [
     "manifest.json", "content.js", "README.md", "README.zh-CN.md",
     "LICENSE", "SECURITY.md", "CONTRIBUTING.md", "CHANGELOG.md",
-    "icons", "docs"
+    "icons", "docs", "firmware"
   ]) {
     assert.equal(script.includes(`  "${entry}"`), true, `${entry} must be packaged`);
   }
 });
 
-test("the public repository remains Chrome-only with no hardware scope leftovers", () => {
-  const hardwarePattern = new RegExp(["ES" + "P32", "WS" + "2812", "WiFi" + "Multi", "dsh" + "-light", "firm" + "ware"].join("|"), "i");
-  const textExtensions = new Set([".js", ".mjs", ".json", ".md", ".yml", ".ps1"]);
-  for (const file of files) {
-    if (!textExtensions.has(extname(file))) continue;
-    const text = readFileSync(file, "utf8");
-    assert.doesNotMatch(text, hardwarePattern, file);
+test("the public tree contains Chrome, ESP32, and demo media but no private WiFi config", () => {
+  const required = [
+    "manifest.json",
+    "content.js",
+    "firmware/esp32-dsh-light/esp32-dsh-light.ino",
+    "firmware/esp32-dsh-light/wifi_config.example.h",
+    "media/eggy-1.jpg",
+    "media/eggy-2.jpg",
+    "media/eggy-3.jpg",
+    "media/eggy-4.jpg",
+    "media/eggy-demo.mp4"
+  ];
+  for (const path of required) {
+    const target = join(root, ...path.split("/"));
+    assert.equal(existsSync(target), true, `${path} should exist`);
+    assert.ok(statSync(target).size > 0, `${path} should not be empty`);
   }
+  assert.equal(existsSync(join(root, "firmware/esp32-dsh-light/wifi_config.h")), false);
 });

@@ -6,10 +6,10 @@ const root = process.argv[2] ? resolve(process.argv[2]) : fileURLToPath(new URL(
 const skippedDirectories = new Set([".git", "build", "dist", "node_modules"]);
 const binaryExtensions = new Set([
   ".png", ".jpg", ".jpeg", ".gif", ".ico", ".zip", ".7z", ".gz",
-  ".exe", ".dll", ".pdf", ".woff", ".woff2"
+  ".exe", ".dll", ".pdf", ".woff", ".woff2", ".mp4", ".webm", ".mov"
 ]);
 const forbiddenFiles = new Set([
-  "github.txt", ".env", "credentials.json"
+  "github.txt", ".env", "credentials.json", "wifi_config.h"
 ]);
 
 const rules = [
@@ -24,6 +24,7 @@ const rules = [
 ];
 
 const assignmentRule = /(?:api[_-]?key|access[_-]?token|client[_-]?secret|password|passwd)\s*[:=]\s*["']([^"']+)["']/i;
+const wifiRule = /(?:wifiMulti\.addAP|WiFi\.begin)\s*\(\s*["']([^"']+)["']\s*,\s*["']([^"']+)["']/g;
 const safeExamples = /^(?:|YOUR_|CHANGE|CHANGEME|EXAMPLE|TEST|DEMO|XXXX|<|\$\{)/i;
 const findings = [];
 
@@ -40,6 +41,11 @@ function scanText(file, text) {
     const assignment = lineText.match(assignmentRule);
     if (assignment && !safeExamples.test(assignment[1])) {
       addFinding(file, index + 1, "possible hard-coded secret");
+    }
+    for (const match of lineText.matchAll(wifiRule)) {
+      if (!safeExamples.test(match[1]) || !safeExamples.test(match[2])) {
+        addFinding(file, index + 1, "hard-coded WiFi name or password");
+      }
     }
   });
 }
